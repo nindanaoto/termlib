@@ -22,6 +22,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -240,6 +241,12 @@ internal class TerminalEmulatorImpl(
     // Native terminal instance - MUST be initialized AFTER damageLock and other state
     private val terminalNative by lazy {
         TerminalNative(this).apply {
+            // Set default colors BEFORE resize to ensure cells are created with correct colors
+            // This is critical because resize() creates cells using the current default colors
+            setDefaultColors(
+                defaultForeground.toArgb(),
+                defaultBackground.toArgb()
+            )
             resize(initialRows, initialCols)
         }
     }
