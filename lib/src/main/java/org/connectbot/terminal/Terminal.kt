@@ -817,10 +817,15 @@ fun TerminalWithAccessibility(
                                         if (gestureType == GestureType.Undetermined && !longPressDetected) {
                                             if (dragAmount.getDistanceSquared() > touchSlopSquared) {
                                                 longPressJob.cancel()
-                                                gestureType = GestureType.Scroll
-                                                // Clear any active selection when scrolling starts
-                                                if (selectionManager.mode != SelectionMode.NONE) {
-                                                    selectionManager.clearSelection()
+                                                // Only enter scroll mode for primarily vertical drags
+                                                // Horizontal drags should propagate to parent (e.g., HorizontalPager)
+                                                val isVerticalDrag = kotlin.math.abs(dragAmount.y) > kotlin.math.abs(dragAmount.x)
+                                                if (isVerticalDrag) {
+                                                    gestureType = GestureType.Scroll
+                                                    // Clear any active selection when scrolling starts
+                                                    if (selectionManager.mode != SelectionMode.NONE) {
+                                                        selectionManager.clearSelection()
+                                                    }
                                                 }
                                             }
                                         }
@@ -862,7 +867,11 @@ fun TerminalWithAccessibility(
                                             else -> {}
                                         }
 
-                                        change.consume()
+                                        // Only consume events when we're handling them
+                                        // Don't consume Undetermined gestures - let them propagate to parent
+                                        if (gestureType != GestureType.Undetermined) {
+                                            change.consume()
+                                        }
                                     }
 
                                     // 6. Gesture ended - cleanup
