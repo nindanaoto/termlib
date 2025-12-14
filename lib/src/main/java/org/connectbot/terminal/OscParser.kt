@@ -16,6 +16,8 @@
  */
 package org.connectbot.terminal
 
+import kotlin.io.encoding.Base64;
+
 /**
  * Parser for OSC (Operating System Command) sequences.
  * Handles clipboard operations (OSC 52), shell integration (OSC 133),
@@ -98,7 +100,7 @@ internal class OscParser {
 
         // Decode base64 data
         val decodedData = try {
-            kotlin.io.encoding.Base64.Default.decode(base64Data).toString(Charsets.UTF_8)
+            Base64.Default.decode(base64Data).toString(Charsets.UTF_8)
         } catch (e: IllegalArgumentException) {
             // Invalid base64 data
             return emptyList()
