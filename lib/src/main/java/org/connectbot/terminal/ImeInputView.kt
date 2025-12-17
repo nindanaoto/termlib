@@ -16,6 +16,7 @@
  */
 package org.connectbot.terminal
 
+import android.content.ClipboardManager
 import android.content.Context
 import android.view.KeyEvent
 import android.view.View
@@ -132,6 +133,20 @@ internal class ImeInputView(
             val bytes = text.toString().toByteArray(Charsets.UTF_8)
             keyboardHandler.onTextInput(bytes)
             return true
+        }
+
+        override fun performContextMenuAction(id: Int): Boolean {
+            // Handle paste from software keyboard context menu
+            if (id == android.R.id.paste) {
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                val clip = clipboard?.primaryClip?.getItemAt(0)?.text?.toString()
+                if (!clip.isNullOrEmpty()) {
+                    val bytes = clip.toByteArray(Charsets.UTF_8)
+                    keyboardHandler.onTextInput(bytes)
+                    return true
+                }
+            }
+            return super.performContextMenuAction(id)
         }
     }
 }
